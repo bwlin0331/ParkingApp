@@ -11,6 +11,18 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.amazonaws.auth.AWSCognitoIdentityProvider;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSIdentityProvider;
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobile.auth.ui.AuthUIConfiguration;
+import com.amazonaws.mobile.client.AWSStartupHandler;
+import com.amazonaws.mobile.client.AWSStartupResult;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobile.auth.ui.SignInUI;
+import com.amazonaws.mobile.client.AWSMobileClient;
+
 public class homeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawerLayout;
@@ -56,6 +68,10 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         }
         if(id == R.id.logout){
             Toast.makeText(this, "This is logout", Toast.LENGTH_SHORT).show();
+
+            //AWSMobileClient.getInstance().getCredentialsProvider().refresh();
+
+            startActivity(new Intent(homeActivity.this, homeActivity.class));
         }
         return false;
     }
