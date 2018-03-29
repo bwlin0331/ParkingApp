@@ -30,6 +30,10 @@
         <activity android:name=".homeActivity" />
         <activity android:name=".settingsActivity" />
         <activity android:name=".accountActivity" />
+        <activity
+            android:name=".confirmationActivity"
+            android:label="@string/title_activity_confirmation"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

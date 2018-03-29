@@ -51,6 +51,7 @@
         completions."
     </string>
     <string name="search">Search</string>
+    <string name="title_activity_confirmation">confirmationActivity</string>
 
 
 </resources>
