@@ -15,9 +15,9 @@ import java.util.Set;
 
 public class GarageScheduleDO {
     private String _userId;
-    private Double _spotID;
     private Double _endTime;
     private Double _startTime;
+    private Double _parkID;
 
     @DynamoDBHashKey(attributeName = "userId")
     @DynamoDBAttribute(attributeName = "userId")
@@ -27,15 +27,6 @@ public class GarageScheduleDO {
 
     public void setUserId(final String _userId) {
         this._userId = _userId;
-    }
-    @DynamoDBRangeKey(attributeName = "spotID")
-    @DynamoDBAttribute(attributeName = "spotID")
-    public Double getSpotID() {
-        return _spotID;
-    }
-
-    public void setSpotID(final Double _spotID) {
-        this._spotID = _spotID;
     }
     @DynamoDBAttribute(attributeName = "EndTime")
     public Double getEndTime() {
@@ -52,6 +43,14 @@ public class GarageScheduleDO {
 
     public void setStartTime(final Double _startTime) {
         this._startTime = _startTime;
+    }
+    @DynamoDBAttribute(attributeName = "parkID")
+    public Double getParkID() {
+        return _parkID;
+    }
+
+    public void setParkID(final Double _parkID) {
+        this._parkID = _parkID;
     }
 
 }

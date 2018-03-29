@@ -20,7 +20,21 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_confirmation" />
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_confirmation" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/cancelBT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="left|bottom"
+        app:srcCompat="@android:drawable/ic_media_rew"
+        tools:layout_editor_absoluteX="192dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/reserveFB"
@@ -28,6 +42,20 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="right|bottom"
+        app:rippleColor="@color/colorPrimary"
         app:srcCompat="@drawable/ic_menu_send" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/promoFB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="bottom|center"
+        app:rippleColor="@color/colorPrimary"
+        app:srcCompat="@android:drawable/btn_star_big_on" />
 
 </android.support.design.widget.CoordinatorLayout>

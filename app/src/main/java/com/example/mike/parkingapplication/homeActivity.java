@@ -13,22 +13,29 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.auth.core.IdentityManager;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedList;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;;
+
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -36,7 +43,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.Thread.sleep;
 
 
 public class homeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -48,8 +54,13 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
     DatePicker dp;
     NumberPicker np,np2;
     Calendar startTime;
-    final int capacity;
 
+    //public static variables
+    public static ViewAnimator va;
+    public static CalendarView cv;
+    public static TextView tvr;
+    GarageScheduleDO reservation;
+    final int capacity;
     {
         capacity = 5;
     }
@@ -66,12 +77,13 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_home);
         //date
         dp = (DatePicker) findViewById(R.id.datePicker);
-
+        tvr = (TextView) findViewById(R.id.textView9);
         //number picker
         np = (NumberPicker) findViewById(R.id.numberPicker);
         np2 = (NumberPicker)findViewById(R.id.numberPicker2);
         pb = (ProgressBar)findViewById(R.id.pB);
-
+        va = (ViewAnimator) findViewById(R.id.viewAnimator);
+        cv = (CalendarView) findViewById(R.id.calendarView);
         np.setMinValue(0);
         np.setMaxValue(24);
         np.setWrapSelectorWheel(true);
@@ -102,6 +114,46 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                 .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
                 .build();
 
+
+        final Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                reservation = dynamoDBMapper.load(
+                        GarageScheduleDO.class,
+                        IdentityManager.getDefaultIdentityManager().getCachedUserID());
+
+                // Item read
+                // Log.d("News Item:", newsItem.toString());
+            }
+        });
+        t1.start();
+        try {
+            t1.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if(reservation == null){
+            va.showNext();
+        }else{
+            double st = reservation.getStartTime()*1000;
+            Calendar std = Calendar.getInstance();
+            std.setTimeInMillis((long)st);
+            double et = reservation.getEndTime()*1000;
+            Calendar etd = Calendar.getInstance();
+            etd.setTimeInMillis((long)et);
+            int parkID = reservation.getParkID().intValue();
+            tvr.setText("From " + std.getTime().toString() + " To " + etd.getTime().toString() + "\n"
+                        + "ParkID: " + parkID);
+            cv.setDate((long)st);
+        }
+
+
+
+        /*DynamoDBQueryExpression query = new DynamoDBQueryExpression()
+                .withHashKeyValues(note)*/
+
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         mToggle = new ActionBarDrawerToggle(homeActivity.this, mDrawerLayout, R.string.open, R.string.close);
         mDrawerLayout.addDrawerListener(mToggle);
@@ -110,8 +162,30 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         checkTimes();
+        cancel();
     }
+    public void cancel(){
+        Button cb = (Button)findViewById(R.id.button3);
 
+
+        cb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public  void onClick(View view) {
+                final GarageScheduleDO item = new GarageScheduleDO();
+                item.setUserId(IdentityManager.getDefaultIdentityManager().getCachedUserID());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dynamoDBMapper.delete(item);
+
+                        // Item deleted
+                    }
+                }).start();
+                va.showNext();
+                Toast.makeText(getBaseContext(), "Cancelled Reservation", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
     public void checkTimes(){
         search = (Button)findViewById(R.id.button2);
@@ -181,10 +255,10 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                             found = true;
 
                             for (GarageScheduleDO scan : scanResult) {
-                                spotList.add(scan.getSpotID().intValue());
+                                spotList.add(scan.getParkID().intValue());
                             }
                             int i;
-                            for(i = 1; i < capacity; i++){
+                            for(i = 1; i <= capacity; i++){
                                 if(!spotList.contains(i)){
                                     spot = i;
                                     break;
@@ -197,20 +271,25 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                     }
                  });
                  t.start();
-                while(t.isAlive()){
-                    SystemClock.sleep(250);
+                try {
+                    t.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 pb.setVisibility(View.INVISIBLE);
                 if(!found){
                     Toast.makeText(getBaseContext(), "There are no available parking spots at this time", Toast.LENGTH_LONG).show();
                 }else{
                     Toast.makeText(getBaseContext(), "Parking Spot Found", Toast.LENGTH_LONG).show();
+                    long duration = (start.getTimeInMillis() - end.getTimeInMillis())/60000; //minutes duration
+
                     Intent transition = new Intent(getBaseContext(), confirmationActivity.class);
-                    transition.putExtra("ParkID", spot);
+                    transition.putExtra("ParkID", (double)spot);
                     transition.putExtra("StartTime", Double.parseDouble(startatt));
                     transition.putExtra("EndTime", Double.parseDouble(endatt));
                     transition.putExtra("StartString", start.getTime().toString());
                     transition.putExtra("EndString",end.getTime().toString());
+                    transition.putExtra("Duration",duration);
                     startActivity(transition);
                 }
 

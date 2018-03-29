@@ -52,6 +52,8 @@
     </string>
     <string name="search">Search</string>
     <string name="title_activity_confirmation">confirmationActivity</string>
+    <string name="schedule_a_reservation">Schedule a Reservation</string>
+    <string name="Colon">:</string>
 
 
 </resources>
