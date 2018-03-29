@@ -7,23 +7,122 @@
     android:layout_height="match_parent"
     tools:context="com.example.mike.parkingapplication.homeActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
-
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/navi_title"
-            android:textAppearance="@style/TextAppearance.AppCompat"
-            tools:text="Text" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/editText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="17dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="Schedule a Reservation" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/SubTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignStart="@+id/datePicker"
+                    android:layout_marginStart="27dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/time"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/subTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/numberPicker2"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="26dp"
+                    android:layout_toEndOf="@+id/SubTitle"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/duration"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/TimeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/datePicker"
+                    android:layout_alignEnd="@+id/SubTitle"
+                    android:layout_marginBottom="73dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/side_nav_bar"
+                    android:backgroundTint="@android:color/background_light"
+                    android:fontFamily="sans-serif-condensed"
+                    android:shadowColor="@color/colorPrimary"
+                    android:text="@string/time1"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="30sp" />
+
+                <DatePicker
+                    android:id="@+id/datePicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/numberPicker"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="29dp" />
+
+                <NumberPicker
+                    android:id="@+id/numberPicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/subTitle"
+                    android:layout_marginTop="36dp"
+                    android:layout_toStartOf="@+id/button2" />
+
+                <NumberPicker
+                    android:id="@+id/numberPicker2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/datePicker"
+                    android:layout_alignEnd="@+id/datePicker" />
+
+                <Button
+                    android:id="@+id/button2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/datePicker"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/search" />
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/TimeText"
+                    android:layout_toEndOf="@+id/numberPicker"
+                    android:layout_toStartOf="@+id/numberPicker2"
+                    android:text="  :  "
+                    android:textAlignment="center"
+                    android:textSize="24sp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
     <android.support.design.widget.NavigationView
         android:layout_width="match_parent"

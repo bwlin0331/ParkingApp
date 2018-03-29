@@ -31,18 +31,18 @@ public class MainActivity extends AppCompatActivity {
         login();
     }*/
     // Declare a DynamoDBMapper object
-    DynamoDBMapper dynamoDBMapper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        /*
         AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(AWSMobileClient.getInstance().getCredentialsProvider());
         this.dynamoDBMapper = DynamoDBMapper.builder()
 
                 .dynamoDBClient(dynamoDBClient)
                 .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                .build();
+                .build();*/
         // Add a call to initialize AWSMobileClient
 
         AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {

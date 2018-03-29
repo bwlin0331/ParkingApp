@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Parking Application</string>
     <string name="email">Email</string>
+    <string name="time">Enter Start Time</string>
+    <string name="duration">Enter Duration</string>
+    <string name="time1">0:00:AM</string>
+    <string name="time2">0:00:AM</string>
     <string name="title1">Parking Garage App</string>
     <string name="pass">Password</string>
     <string name="no_acc">No Account? Sign - Up!</string>
@@ -46,6 +50,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="search">Search</string>
 
 
 </resources>
