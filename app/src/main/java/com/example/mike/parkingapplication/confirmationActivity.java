@@ -78,6 +78,8 @@ public class confirmationActivity extends AppCompatActivity {
                 Snackbar.make(view, "Reservation Success", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 fab.setClickable(false);
+
+                //generate code here
             }
         });
 

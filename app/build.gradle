@@ -38,4 +38,7 @@ dependencies {
     compile('com.android.support:appcompat-v7:24.+')
     compile('com.amazonaws:aws-android-sdk-auth-ui:2.6.+@aar') { transitive = true; }
     compile 'com.amazonaws:aws-android-sdk-ddb-mapper:2.6.+'
+    compile 'com.google.zxing:core:3.2.1'
+    compile 'com.journeyapps:zxing-android-embedded:3.5.0@aar'
+
 }

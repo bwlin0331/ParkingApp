@@ -163,6 +163,7 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         checkTimes();
         cancel();
+        checkIn();
     }
     public void cancel(){
         Button cb = (Button)findViewById(R.id.button3);
@@ -185,6 +186,16 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(getBaseContext(), "Cancelled Reservation", Toast.LENGTH_LONG).show();
             }
         });
+    }
+    public void checkIn() {
+            Button but = (Button)findViewById(R.id.button4);
+
+            but.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(homeActivity.this, QR_Code.class));
+                }
+            });
     }
 
     public void checkTimes(){
@@ -315,7 +326,7 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(homeActivity.this, accountActivity.class));
         }
         if(id == R.id.currRes){
-            Toast.makeText(this, "This is current", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(homeActivity.this, QR_Code.class));
         }
         if(id == R.id.orderHistory){
             Toast.makeText(this, "This is order", Toast.LENGTH_SHORT).show();
