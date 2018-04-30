@@ -37,16 +37,19 @@ import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 
 
+import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
 
 public class homeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
+    public static PinpointManager pinpointManager;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private AWSConfiguration awsConfiguration;
@@ -73,6 +76,16 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
     DynamoDBMapper dynamoDBMapper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //initiate analytics
+        PinpointConfiguration config = new PinpointConfiguration(
+                this.getBaseContext(),
+                AWSMobileClient.getInstance().getCredentialsProvider(),
+                AWSMobileClient.getInstance().getConfiguration()
+        );
+        pinpointManager = new PinpointManager(config);
+        pinpointManager.getSessionClient().startSession();
+        pinpointManager.getAnalyticsClient().submitEvents();;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         //date
@@ -84,10 +97,11 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         pb = (ProgressBar)findViewById(R.id.pB);
         va = (ViewAnimator) findViewById(R.id.viewAnimator);
         cv = (CalendarView) findViewById(R.id.calendarView);
+        cv.setEnabled(false);
         np.setMinValue(0);
         np.setMaxValue(24);
         np.setWrapSelectorWheel(true);
-        np2.setMinValue(15);
+        np2.setMinValue(0);
         np2.setMaxValue(59);
         np.setWrapSelectorWheel(true);
         //build timing variables
@@ -146,6 +160,7 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
             tvr.setText("From " + std.getTime().toString() + " To " + etd.getTime().toString() + "\n"
                         + "ParkID: " + parkID);
             cv.setDate((long)st);
+
         }
 
 
@@ -164,6 +179,24 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         checkTimes();
         cancel();
         checkIn();
+
+    }
+
+    public void onDestroy() {
+        pinpointManager.getSessionClient().stopSession();
+        pinpointManager.getAnalyticsClient().submitEvents();
+        super.onDestroy();
+    }
+    public void logEvent() {
+        //pinpointManager.getSessionClient().startSession();
+        final AnalyticsEvent event =
+                pinpointManager.getAnalyticsClient().createEvent("Name")
+                        .withAttribute("DemoAttribute1", "DemoAttributeValue1")
+                        .withMetric("DemoMetric1", Math.random());
+
+        pinpointManager.getAnalyticsClient().recordEvent(event);
+        //pinpointManager.getSessionClient().stopSession();
+        pinpointManager.getAnalyticsClient().submitEvents();
     }
     public void cancel(){
         Button cb = (Button)findViewById(R.id.button3);
@@ -203,6 +236,7 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                logEvent();
                 time1 = tv.getText().toString();
                 pb.setVisibility(View.VISIBLE);
                // System.out.println(time1);
