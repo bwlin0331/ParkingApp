@@ -20,6 +20,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.AmazonWebServiceClient.*;
 import com.amazonaws.*;
+
+import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
+
 public class MainActivity extends AppCompatActivity {
     /*
     @Override
@@ -31,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         login();
     }*/
     // Declare a DynamoDBMapper object
+    public static PinpointManager pinpointManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +67,22 @@ public class MainActivity extends AppCompatActivity {
                 signin.login(MainActivity.this, homeActivity.class).authUIConfiguration(config).execute();
             }
         }).execute();
+        PinpointConfiguration config = new PinpointConfiguration(
+                MainActivity.this,
+                AWSMobileClient.getInstance().getCredentialsProvider(),
+                AWSMobileClient.getInstance().getConfiguration()
+        );
+        pinpointManager = new PinpointManager(config);
+        pinpointManager.getSessionClient().startSession();
+        pinpointManager.getAnalyticsClient().submitEvents();
+        //finish();
+    }
 
-        finish();
+
+    public void OnDestroy(){
+        pinpointManager.getSessionClient().stopSession();
+        pinpointManager.getAnalyticsClient().submitEvents();
+        super.onDestroy();
     }
 }
 /*

@@ -29,7 +29,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     //compile('com.amazonaws:aws-android-sdk-mobile-client:2.6.+@aar') { transitive = true; }
-
+    compile 'com.android.support:multidex:1.0.1'
     // Cognito UserPools for SignIn
     compile('com.android.support:support-v4:24.+')
     compile('com.amazonaws:aws-android-sdk-auth-userpools:2.6.+@aar') { transitive = true; }

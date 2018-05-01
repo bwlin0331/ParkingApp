@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.monetization.AmazonMonetizationEventBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.text.DecimalFormat;
@@ -40,6 +42,7 @@ public class confirmationActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         price = ((double)getIntent().getLongExtra("Duration", 0))*0.083;
+        price = price*(-1);
         DecimalFormat df = new DecimalFormat("0.00");
         tv2.setText("Price: " + df.format(price) + "$");
         AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(AWSMobileClient.getInstance().getCredentialsProvider());
@@ -77,6 +80,7 @@ public class confirmationActivity extends AppCompatActivity {
                 tt.setText("Reservation Confirmed");
                 Snackbar.make(view, "Reservation Success", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                logMonetizationEvent();
                 fab.setClickable(false);
 
                 //generate code here
@@ -90,5 +94,18 @@ public class confirmationActivity extends AppCompatActivity {
             }
         });
     }
+    public void logMonetizationEvent() {
+        MainActivity.pinpointManager.getSessionClient().startSession();
 
+        final AnalyticsEvent event =
+                AmazonMonetizationEventBuilder.create(MainActivity.pinpointManager.getAnalyticsClient())
+                        .withCurrency("USD")
+                        .withItemPrice(price)
+                        .withProductId("Parking Reservation")
+                        .withQuantity(1.0).build();
+
+        MainActivity.pinpointManager.getAnalyticsClient().recordEvent(event);
+        MainActivity.pinpointManager.getSessionClient().stopSession();
+        MainActivity.pinpointManager.getAnalyticsClient().submitEvents();
+    }
 }

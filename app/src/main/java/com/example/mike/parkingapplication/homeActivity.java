@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
+
 
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -47,9 +49,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
-
+import com.amazonaws.mobileconnectors.pinpoint.analytics.monetization.AmazonMonetizationEventBuilder;
 public class homeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    public static PinpointManager pinpointManager;
+    //public static PinpointManager pinpointManager;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private AWSConfiguration awsConfiguration;
@@ -76,15 +78,6 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
     DynamoDBMapper dynamoDBMapper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //initiate analytics
-        PinpointConfiguration config = new PinpointConfiguration(
-                this.getBaseContext(),
-                AWSMobileClient.getInstance().getCredentialsProvider(),
-                AWSMobileClient.getInstance().getConfiguration()
-        );
-        pinpointManager = new PinpointManager(config);
-        pinpointManager.getSessionClient().startSession();
-        pinpointManager.getAnalyticsClient().submitEvents();;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -182,21 +175,16 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void onDestroy() {
-        pinpointManager.getSessionClient().stopSession();
-        pinpointManager.getAnalyticsClient().submitEvents();
-        super.onDestroy();
-    }
     public void logEvent() {
-        //pinpointManager.getSessionClient().startSession();
+        MainActivity.pinpointManager.getSessionClient().startSession();
         final AnalyticsEvent event =
-                pinpointManager.getAnalyticsClient().createEvent("Name")
-                        .withAttribute("DemoAttribute1", "DemoAttributeValue1")
-                        .withMetric("DemoMetric1", Math.random());
+                MainActivity.pinpointManager.getAnalyticsClient().createEvent("Parking")
+                        .withAttribute("Parker", "Parked")
+                        .withMetric("Spot", Math.random());
 
-        pinpointManager.getAnalyticsClient().recordEvent(event);
-        //pinpointManager.getSessionClient().stopSession();
-        pinpointManager.getAnalyticsClient().submitEvents();
+        MainActivity.pinpointManager.getAnalyticsClient().recordEvent(event);
+        MainActivity.pinpointManager.getSessionClient().stopSession();
+        MainActivity.pinpointManager.getAnalyticsClient().submitEvents();
     }
     public void cancel(){
         Button cb = (Button)findViewById(R.id.button3);
@@ -285,20 +273,20 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                 schedule.setUserId(IdentityManager.getDefaultIdentityManager().getCachedUserID());
                 schedule.setStartTime(Double.parseDouble(startatt));
                 schedule.setEndTime(Double.parseDouble(endatt));*/
-
+                final int[] size = new int[1];
                 final Thread t = new Thread(new Runnable(){
                     @Override
                     public void run() {
                         List<GarageScheduleDO> scanResult = dynamoDBMapper.scan(GarageScheduleDO.class,scanExpression);
                         Set<Integer> spotList = new HashSet<Integer>();
-                        System.out.println(scanResult.size());
+                        //System.out.println(scanResult.size());
                         if(scanResult.size() >= capacity){
                             found = false;
                             return;
                         }
                         else {
                             found = true;
-
+                            size[0] = scanResult.size();
                             for (GarageScheduleDO scan : scanResult) {
                                 spotList.add(scan.getParkID().intValue());
                             }
