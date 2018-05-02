@@ -34,7 +34,11 @@
             android:name=".confirmationActivity"
             android:label="@string/title_activity_confirmation"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".QR_Code"></activity>
+        <activity android:name=".QR_Code" />
+        <activity
+            android:name=".purchasehistoryActivity"
+            android:label="@string/title_activity_purchasehistory"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

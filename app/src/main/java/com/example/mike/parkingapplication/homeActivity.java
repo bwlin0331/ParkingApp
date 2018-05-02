@@ -129,7 +129,6 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                 reservation = dynamoDBMapper.load(
                         GarageScheduleDO.class,
                         IdentityManager.getDefaultIdentityManager().getCachedUserID());
-
                 // Item read
                 // Log.d("News Item:", newsItem.toString());
             }
@@ -352,6 +351,9 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         }
         if(id == R.id.orderHistory){
             Toast.makeText(this, "This is order", Toast.LENGTH_SHORT).show();
+        }
+        if(id == R.id.purchaseHistory){
+            startActivity(new Intent(homeActivity.this, purchasehistoryActivity.class));
         }
         if(id == R.id.settings){
             startActivity(new Intent(homeActivity.this, settingsActivity.class));
