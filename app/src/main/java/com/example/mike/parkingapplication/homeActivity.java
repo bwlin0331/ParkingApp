@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -42,6 +43,7 @@ import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -50,16 +52,28 @@ import java.util.Set;
 
 import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
 import com.amazonaws.mobileconnectors.pinpoint.analytics.monetization.AmazonMonetizationEventBuilder;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+
 public class homeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     //public static PinpointManager pinpointManager;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private AWSConfiguration awsConfiguration;
+    List<GarageScheduleDO> dataP;
     TextView tv;
     DatePicker dp;
     NumberPicker np,np2;
     Calendar startTime;
-
+    BarChart chart;
+    ArrayList<String> xlabel;
     //public static variables
     public static ViewAnimator va;
     public static CalendarView cv;
@@ -82,12 +96,39 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         //date
+        chart = (BarChart) findViewById(R.id.barchart);
+        chart.animateY(1000);
+        xlabel = new ArrayList<String>();
+        xlabel.add("12:00 am");
+        xlabel.add("1:00 am");
+        xlabel.add("2:00 am");
+        xlabel.add("3:00 am");
+        xlabel.add("4:00 am");
+        xlabel.add("5:00 am");
+        xlabel.add("6:00 am");
+        xlabel.add("7:00 am");
+        xlabel.add("8:00 am");
+        xlabel.add("9:00 am");
+        xlabel.add("10:00 am");
+        xlabel.add("11:00 am");
+        xlabel.add("12:00 pm");
+        xlabel.add("1:00 pm");
+        xlabel.add("2:00 pm");
+        xlabel.add("3:00 pm");
+        xlabel.add("4:00 pm");
+        xlabel.add("5:00 pm");
+        xlabel.add("6:00 pm");
+        xlabel.add("7:00 pm");
+        xlabel.add("8:00 pm");
+        xlabel.add("9:00 pm");
+        xlabel.add("10:00 pm");
+        xlabel.add("11:00 pm");
         dp = (DatePicker) findViewById(R.id.datePicker);
         tvr = (TextView) findViewById(R.id.textView9);
         //number picker
         np = (NumberPicker) findViewById(R.id.numberPicker);
         np2 = (NumberPicker)findViewById(R.id.numberPicker2);
-        pb = (ProgressBar)findViewById(R.id.pB);
+        //pb = (ProgressBar)findViewById(R.id.pB);
         va = (ViewAnimator) findViewById(R.id.viewAnimator);
         cv = (CalendarView) findViewById(R.id.calendarView);
         cv.setEnabled(false);
@@ -112,7 +153,74 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        dp.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
 
+            @Override
+            public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                Toast.makeText(getBaseContext(), "Graph Update", Toast.LENGTH_LONG).show();
+                final DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+                Calendar start = new GregorianCalendar(year,month,dayOfMonth,0,0);
+                Calendar end = new GregorianCalendar(year,month,dayOfMonth+1,0,0);
+                String startatt = String.valueOf(start.getTimeInMillis()/1000);
+                String endatt = String.valueOf(end.getTimeInMillis()/1000);
+                scanExpression.addFilterCondition("StartTime",
+                        new Condition()
+                                .withComparisonOperator(ComparisonOperator.LE)
+                                .withAttributeValueList(new AttributeValue().withN(endatt)));
+                scanExpression.addFilterCondition("EndTime",
+                        new Condition()
+                                .withComparisonOperator(ComparisonOperator.GE)
+                                .withAttributeValueList(new AttributeValue().withN(startatt)));
+
+                final Thread t = new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        dataP = dynamoDBMapper.scan(GarageScheduleDO.class,scanExpression);
+                       //System.out.println(scanResult.size());
+                    }
+                });
+                t.start();
+                try {
+                    t.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                float x[] = new float[24];
+                for(int i = 0; i < 24; i++){
+                    x[i] = 0f;
+                }
+                for(GarageScheduleDO next: dataP){
+                    for(int i = 0; i < 24; i++){
+                        Calendar temp = new GregorianCalendar(year,month,dayOfMonth,i,0);
+                        double time = temp.getTimeInMillis()/1000.0;
+                        if(time >= next.getStartTime() && time <= next.getEndTime()){
+                            x[i] = x[i] + 1.0f;
+                        }
+                    }
+                }
+                ArrayList<BarEntry> valueset = new ArrayList<>();
+                for(int i = 0; i < 24; i++){
+                    valueset.add(new BarEntry(i,x[i]));
+                }
+                BarDataSet dataSet = new BarDataSet(valueset,"Busy hours");
+                BarData data = new BarData(dataSet);
+
+                chart.setData(data);
+                chart.animateXY(2000,2000);
+                chart.invalidate();
+                XAxis xAxis = chart.getXAxis();
+                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                xAxis.setDrawGridLines(false);
+                xAxis.setValueFormatter(new IAxisValueFormatter() {
+                    @Override
+                    public String getFormattedValue(float value, AxisBase axis) {
+                        return xlabel.get((int)value);
+                    }
+                });
+            }
+        });
 
         // build out database instance
         AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(AWSMobileClient.getInstance().getCredentialsProvider());
@@ -225,7 +333,7 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 logEvent();
                 time1 = tv.getText().toString();
-                pb.setVisibility(View.VISIBLE);
+                //pb.setVisibility(View.VISIBLE);
                // System.out.println(time1);
                 int hour1, hour2, min1, min2, tot1, tot2;
                 final int ind1 = time1.indexOf(':');
@@ -308,7 +416,7 @@ public class homeActivity extends AppCompatActivity implements NavigationView.On
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                pb.setVisibility(View.INVISIBLE);
+                //pb.setVisibility(View.INVISIBLE);
                 if(!found){
                     Toast.makeText(getBaseContext(), "There are no available parking spots at this time", Toast.LENGTH_LONG).show();
                 }else{
